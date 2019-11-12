@@ -1,0 +1,69 @@
+Software Architecture
+
+Environment  Perception
+-----------------------
+Sensors + Environment Mapping => location and classify
+GPS/IMU/Odometry => Localization => position
+Camera + LIDAR   => Dynamic Object Detection 
+                 => bounding boxes 
+                 => Dynamic Object Tracking 
+                 => Object Prediction 
+Camera + LIDAR   => Static objects
+
+Environment Mapping
+-----------------------
+Sensors => map 
+Object Tracks + sensors => Occupancy Grid Map
+Object Tracks + sensors => Localization Map
+apriori + Perception + segemnted image + static objects
+    => Detailed Road Map 
+
+Motion Planning
+-----------------------
+Environment Perception => planned path
+    Mission Planner => optimal sequence
+    OccupancyGrid + Dynamic Objects + position
+        => Behavior Planner => determine safe actions
+    Occupancy Grid + Position + Dynamic Objects 
+        =>  Local Planner => trajectory
+
+Controller
+-----------------------
+Motion Planning => controller => actuators 
+Position + trajectory =>
+    Velocity Controller
+    Steering Controller
+
+System Supervisor
+-----------------------
+
+Software Supervisor
+    validate software elements
+Hardware Supervisor
+    sensors
+    actuators
+
+
+Environment Representation
+--------------------------
+
+Map Types
+
+Localization Map
+    localization point cloud or feature map
+    LIDAR
+
+Occupancy Grid Map  
+    fine grained grid map 2d or 3d
+    keep only viable cells, remove others
+    non-interfering static objects are removed from grid
+    dynamic objects are removed
+
+Detailed Road Map
+    apriori data
+    lanes
+    regulations
+    online (rare, too network intensive)
+    offline (detailed but can be out of date)
+    offline + updated online (best)
+    path planning

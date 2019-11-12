@@ -71,3 +71,20 @@ Vision Sensors
 --------------
     cameras
 
+
+Following Distance
+
+S = distance
+V = velocity m/sec 
+U = initial velocity m/sec 
+A = acceleration
+m/s * t = S
+(K/h * 1000 / 3600) * t = S
+
+stopping distance
+
+V^2 = U2 + 2*a*S
+S = (V^2 - U^2) / (2 * A)
+
+m/sec = (km/hr * 1000 m/km) / 3600 sec/hr = m/sec
+

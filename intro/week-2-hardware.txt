@@ -6,7 +6,7 @@ hardware configuration design
     blind spots
     failures
 
-Highway vs Urban
+Highway vs Urban  
 
 camera,radar,lidar,sonar,gnss/imu/odometry
 
