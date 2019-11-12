@@ -1,0 +1,78 @@
+Sensors and Computing Hardware
+
+Sensors for Perception
+    computing Hardware
+    design
+    sw architecture
+    environment representation
+
+Sensor types
+    device measures or detects environment property or changes
+    exteroceptive = surroundings
+    proprioceptive = internal
+
+exteroceptive 
+-------------
+Camera 
+    metrics
+        resolution 
+        FOV
+        dynamic range
+    tradeoff FOV vs resolution
+    stereo camera - depth estimation
+
+LIDAR
+    3d scene geometry
+    point cloud map
+    metrics
+        number of beams
+        points per second
+        rotation rate
+        detection range
+        FOV
+    HD solid state LIDAR coming soon        
+
+RADAR
+    object detection
+    speed estimatino
+    metrics 
+        WFOV short range
+        NFOV long range
+
+SONAR
+    low cost
+    short range all weather
+    independent of lighting
+
+
+proprioceptive 
+--------------
+
+GNSS
+    position
+    velocity
+    RTK,PPP,DGPS
+
+IMU
+    acceleration
+    rotation rates
+
+Odometry
+    speed accuracy
+
+
+Computing Hardware
+------------------
+
+main computer(s)
+    receives sensor data
+    computes actions
+
+image processing
+    GPU
+    FPGA
+    ASICS
+
+Synchronization
+    common clock
+    GPS timing (1 hz pulse)    

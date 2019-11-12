@@ -1,0 +1,59 @@
+
+hardware configuration design
+
+    coverage analysis
+    costs
+    blind spots
+    failures
+
+Highway vs Urban
+
+camera,radar,lidar,sonar,gnss/imu/odometry
+
+deceleration rates
+    aggressive 5m/s^2
+    comfortable 2m/s^2
+    stopping distance d = v^2/2a
+        v = velocity
+        a = deceleration rates
+
+Where to place sensors
+    within the ODD
+
+Highway Maneuvers
+
+    emergency stop 
+        110 meters with aggressive deceleration
+        150-200 meters
+        adjacent lane
+    maintain speed
+        relative < 30 kph
+        100 meters
+        current lane
+        adjacent lane
+        2 seconds
+    lane change
+        forward
+        behind
+        more lateral coverage
+    coverage requirements
+        emergency stop
+        emergency stop - maintain speed
+        maintain speed - lane change
+        lane change
+
+Urban Maneuvers
+
+    emergency stop
+    maintain speed
+    lane change
+    overtaking
+        longitudinal
+        lateral beyond adjacent lanes
+    turning/crossing
+        omnidirectional sensors
+    roundabouts
+
+
+
+

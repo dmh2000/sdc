@@ -1,0 +1,73 @@
+Measurement model
+
+X(t) = Ax(t-1) + Bu(t) + e(t)
+Y(t) = Cx(t) + Du(t) + noise
+
+x = state vector
+y = output vector (measurement)
+u = input
+A = system state matrix
+B = input matrix
+C = output matrix
+D = feedforward matrix
+
+Sensors
+-------
+
+passive
+    receive only
+active 
+    transmit/receive
+
+characteristics
+    range
+    dynamic range (db)
+    full scale
+    linearity
+
+bandwidth/frequency
+    sine tracking
+    update rate
+    inner loop (control)
+    outer loop (planning/mapping)
+
+Resolution -
+    separation between measurement points
+Accuracy -  measured vs true
+Precision - reproducibility
+Systematic error - deterministic/modeled
+Random error - gaussian
+
+Contact Sensors
+---------------
+    button
+    force sensor
+    stretch/bend sensor
+
+Interial Sensors
+----------------
+    accelerometer 
+        acceleration
+        bias/vibration/temperature/shock
+    gyros
+        rotation rates
+        vibration/temperature./shock/range
+    magnetometers
+        mag heading
+
+Range Sensors
+-------------
+    SONAR
+    IR
+    LIDAR
+    RADAR
+
+Position Sensors
+----------------
+    encoders - incremental/absolute - odometry
+    GNSS
+
+Vision Sensors
+--------------
+    cameras
+
