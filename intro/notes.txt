@@ -1,0 +1,103 @@
+taxonomy of Self Driving Cars
+
+Dynamic Driving Task (DDT)
+    perception
+    planning
+    control
+
+Operational Design Domain (ODD)
+    driver attention
+    driver action
+    driving task capabilities
+        lateral control
+        longitudinal control
+        object event detect response (OEDR)
+        planning
+            long term
+            short term
+            immediate
+    fallback
+
+Levels 
+------
+
+level 0 - no automation
+level 1 - driver assist
+    lateral OR longitudinal 
+    adaptive cruise
+    lane keeping
+    driver monitoring and assists
+
+level 2 - Partial Driving Automation
+    lateral AND longitudinal 
+    driver monitoring and assists
+
+level 3 Conditional Driving Automation
+    lateral AND longitudinal with OEDR
+    less driver attention
+    alerts
+    
+level 4 High Driving Automation
+    passenger rather than driver, may or may not intervene
+    full DDT automation within limiited ODD
+    requests to intervene
+    performs fallback 
+    minimal risk Conditional
+
+level 4 High Driving Automation
+    passenger rather than driver, may or may not intervene
+    full DDT automation within unlimiited ODD (drivable)
+    requests to intervene
+    performs fallback 
+    minimal risk Conditional
+
+Perception 
+----------
+
+requirements
+    perceive -> plan 
+    OEDR required
+    identify -> predict -> plan
+
+informed decisions
+    static elements
+        roads
+        signs
+        curbs
+        signals
+    dynamic elements
+        vehicles (2w and 4w)
+        pedestrians
+
+Localization - where am I 
+    GPS
+    IMU
+    Odometry
+
+detection/segmentation
+    machine learning 
+    training data 
+    expensive
+
+sensor limitations
+    uncertainty
+    occlusion/reflection
+    illumination/lens flare (redundancy)
+    weather/recipitation
+
+KITTI Vision Benchmark Suite
+
+Decisions - Actions
+
+    planning - reactive or predictive 
+
+    long term - mission plan
+    short term - lane change, intersection 
+    immediate - track and speed
+
+reactive planning   
+    rule based, current state, no prediction
+
+predictive planning 
+    prediction based
+    accuracy of predictions
