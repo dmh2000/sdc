@@ -1,0 +1,45 @@
+Bicycle Model
+-------------
+
+simplified car Model  
+    front wheel steering Model
+    inertial frame Fi
+
+reference point options
+    center front axle xf,yf
+    center rear axle xr,yr
+    CG xc,yc
+
+rear axle Model
+L = length between front and rear
+delta = steering angle
+velocity = pointing direction of wheel (no-slip)
+theta = heading 
+apply ICR
+theta_dot = omega = v / R (instantaneous turn radius)
+tan delta = L / R
+rotation rate = theta_dot = omega = v / R = v tan(deltaA) / L
+
+bicycle kinematic model - rear axle
+x-dot_r = v cos theta
+y-dot-r = v sin theta
+theta_dot = v tan delta / length
+
+bicycle kinematic model - front axle
+x-dot-f = v cos(theta + delta)
+y-dot-f = v sin(theta + delta)
+theta_dot = v * sin(delta) / L 
+
+bicycle kinematic model  - CG
+beta = sideslip angle = velocity angle at CG - theta
+x-dot-c = v cos(theta + beta)
+y-dot-c = v sin(theta + beta)
+theta_dot = v cos(beta) tan(delta) / L 
+beta = arctan((lr tan delta)/L)
+phi = rate of change of steering angle
+delta-dot = phi
+
+inputs: [v, phi]T
+state : [x,y,theta,delta]T
+
+

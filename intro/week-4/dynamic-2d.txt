@@ -1,0 +1,66 @@
+Dynamic Modeling 2D
+--------------------
+
+no-slip condition does not apply
+forces : drag, road friction, drive train
+
+define coordinate frames
+    body
+    inertial
+lumped dynamic elemenets
+free body diagram
+dynamic equations
+
+SUM F = m*a
+SUM T = l*a
+
+rolling cart 
+x = position 
+m = mass of cart 
+f1 = right 
+f2 = left 
+f3 = left
+Ma = Sum f
+Mx_dot_dot = f1 - f2 - f3
+
+shock absorber spring and flow 
+y = position
+m = mass
+k = spring constant
+b = damping coefficient
+F = My-dot-dot + b * y_dot + ky
+
+
+Rotational
+
+Tau = torque
+
+theta = angular position
+tire inertia = j = mass
+stiffness = k
+damping = b 
+
+t_drive
+t_load
+theta's 
+
+J*theta_dot_dot + b * theta_dot + k*theta = T_drive - T_load 
+
+Full 3D Model is complex
+split into 2 - 2d models
+    steering
+    throttle/brake
+
+2d dynamics
+longitudingal forces  
+    Traction (drive) +
+    aero resistance -
+    gradient resistence -
+    rolling resistence -
+
+lateral forces
+    tire slip/friction
+    centrifugal force
+
+
+

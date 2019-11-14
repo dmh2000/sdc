@@ -1,0 +1,74 @@
+
+Kinematic Model
+---------------
+
+kinematic - no forces
+dynamic - forces taken into account
+right handed convention
+inertial frame - earth relative ECEF
+body frame - located on the body of the vehicle
+sensor frame - attached to each sensor
+
+transforms:
+velocity vector - magnitude/direction
+[b1,b2] - body frame
+[e1,e2] - ecef
+
+Rotation
+Ceb = [ cos A sin A]
+      [-sin A cos A]
+
+Cbe = [cos A -sin A]
+      [sin A  cos A]
+
+Translation + Rotation 
+O = translation of origin
+Pb = Ceb(A) * Pe + Oeb
+Pe = Cbe(A) * Pb + Obe
+
+homogenous coordinates
+p = [x y] p-bar = [x y 1]
+
+Pe-bar = [Ceb(a + Oeb)] * Pb-bar
+
+constraint : nonholonomic - move forward and turn, but not sideways 
+    y-dot cos theta - x-dot sin theta = 0
+
+velocity is tangent to the path
+tan theta = sin theta / cos theta
+x-dot = v cos theta
+y-dot = v sin theta
+
+inputs - model - states
+v = velocity
+omega = rotation rate
+[v,w] -> x-dot = v cos(A),y-dot=v sin(A),theta_dot = omega
+
+state = a vector of variables that fully define the state of the vehicle
+
+p = center of robot
+l = wheel to center 
+r = wheel radius
+w1,w2 = wheel rotation rates
+
+vi = r*wi
+v = v1 + v2 = rw1 + rw2
+    -------   ---------
+       2          2
+
+ICR - instanenous center of rotation
+
+omega = -v2/p = -(v2 - v1) / 2l = (rw1 - rw2) / 2*l
+
+ROBOT Model - continuous
+x-dot     = [(rw1 + rw2)/2 cos theta]
+y-dot     = [(rw1 + rw2)/2 sin theta]
+theta_dot = (rw1 - rw2) / 2*l
+
+ROBOT MODEL - discrete time
+Xk+1 = Xk + ( (rw1k + rw2k)/2 * cos theta_k) * dt
+Yk+1 = Yk + ( (rw1k + rw2k)/2 * sin theta_k) * dt
+Tk+1 = Tk + ((rw1k - rw2k) / 2L) * dt
+
+
+

@@ -1,0 +1,68 @@
+LONGITUDINAL DYNAMICS
+---------------------
+
+forces
+F-aero
+F-xr,F-xf = driving forces by wheel
+m*g*sin(alpha) = gradient
+R-xr,R-xf = rolling resistance
+m*x-dot-dot 
+    = mass * longitudinal acceleration 
+    = Fxf + Fxr - Faero = Rxf = Rxr = m*g*sin(alpha)
+group front and rear
+    Fx = Fxf + Fxr
+    Rx = Rxf + Rxr
+    assume alpha is small angle sin(alpha) = alpha
+
+    m*x_dot_dot = Fx - Faero - Rx - mga
+
+Resistance forces
+total resistance longitudinal
+Fload = Faero + Rx + mga    
+
+Faero = 1/2 Ca*p*A*x_dot^2 = Ca*X_dot^2
+p = density
+A = cross section
+Cd = drag coefficient
+x_dot = speed
+
+Ca = lumped coefficient of drag inclusing P,A and Cd
+simplified drag force = Ca * X_dot^2
+
+N = normal force
+Chat_r = tire pressure
+Rx = N(Cr,0 + Cr,1 * abs(x_dot) + Cr,2 * x_dot^2) ~= Cr,1*abs(x_dot)
+
+Drive force - powertrain
+constraint - rotational coupling
+    omega_w = GRomega_t = GRomega_e
+    omega_w = wheel angular speed
+    omega_t = torque convert angular speed
+    omega_e = engine angular speed
+    GR = combined gear ratios
+
+wheel forward speed
+    X-dot = r_eff*omega_w    (rff = tire radius)
+    x-dot-dot = reff * GR * omega_dot_e
+
+
+Power flow
+wheel angular speed
+    IwOMega_Dotw = Twheel - reff*Fx
+    Twheel = Iw*omega_dot_w + ReffFx
+transmission -
+    ItOmega_dot_t = Tt - GR*T_wheel
+    ItOmega_dot_t = Tt - GR(Iw*omaega_dot_w + Reff*Fx)
+torque converter -
+    omega_t = omega_e 
+    Tt = (It + Iw*GR^2) *omega_dot_e + GR*Reff*Fx
+engine
+    IeOMega_dot_e = Tengine - Tt 
+    IeOmega_dot_e = Tengine -  (It + Iw*GR^2) *omega_dot_e + GR*Reff*Fx
+
+Tire force inertia and load
+Fx = M*x_dot_dot + Fload = m*Reff*GR*omega_dot_e + Fload
+
+simplified engine dynamic model
+Je = (Ie + It + Iw*GR^2 + m*GR^2*Reff^2) * omega_dot_e
+Je*Omega_dot_e = Tengine - GR * (Reff *Fload)
