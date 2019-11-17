@@ -1,0 +1,71 @@
+Tire Slip and Modeling
+----------------------
+
+Slip Angle Beta
+    angle between forward direction and actual direction
+    alpha = arctan(Vy/Vx) = arctan(y_dot/x_dot)
+    small angle approximation
+    alpha = y_dot / x_dot
+tire slip angle 
+    angle between direction pointing and direction traveling
+    alpha_xr = -Beta + Lr*psi_dot/V
+    alpha_xf = detla - Beta - (Lf*psi_dot)/V
+
+
+Slip Ratio
+    longitudinal slip
+    W = wheel angular speed
+    Re = effective radius
+    V = forward velocity
+    S = (W * Re - V)/V
+
+    tire sliding
+    when WRe < V -> wheels are skidding during decel 
+    when WRe > V -> wheels are spinning
+    When WRe = 0 -> wheels are locked
+
+inputs to tire Model
+    vehicle slip angle
+    slip Ratio
+    normal force vertical
+    friction
+    coefficient
+    camber angle - rotation plane vs road
+    tire properties
+
+outputs of tire model 
+    lateral force
+    longitudinal force
+    self-aligning
+    rolling resistance moment
+    overturning moment
+
+modeling approaches
+    Analytical
+        Brush, Fiala
+        simple fast models
+        low precision
+    Numerical
+        numeric solutions of differential equations
+        lookup tables
+        no explicit math
+    parameterized
+        linear,pacejka,dugoff
+        experimental
+        fit model with data   
+        math data
+        widely used
+
+Linear Tire Model
+    Fx = Cx if |x| < Xmax
+       = Fmax if |x| >= xmax
+    Smax = slip max
+    alpha_max 
+
+Pacejka Tire Model     
+    Magic Formula Tire Model
+    F(X,Fz = D sing())
+
+
+
+

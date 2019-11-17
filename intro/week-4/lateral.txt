@@ -1,0 +1,47 @@
+Lateral Dynamics
+
+Rotation Rate of vehicle
+
+longitudinal velocity is constant
+left and right axel are lumped into a single wheel
+suspension,road incline and aero are neglected
+
+lateral Dynamics
+CG is centerpoint
+
+lateral acceleration
+Ay = Y_dot_ot + omega^2 * R
+   = V*beta_dot + V * psi_dot
+
+V = omega * R = vehicle velocity
+omega = psi_dot
+beta_dot = slip angle rate of change = side slip rate
+psi_dot = heading rate of change = yaw rate
+Fy = tire forces
+Iz = vehicle inertia
+Lf and Ly = CG to tire distance
+
+lateral dynamics
+mV * (beta_dot + psi_dot) = Fyf + Fyr
+
+angular acceleration
+Iz * psi_dot_dot = Lf Fyf - LrFyr
+
+tire slip models
+for small angles -> linear approximation
+alpha_f = front tire side slip angle
+alpha_r = rear tire slip angle
+Cy = cornering stiffness = resist deformation  
+Beta = vehicle slip angle
+delta = steering angle
+
+linearized cornering stiffness approximation
+Fyf = Cf*alpha_f = Cf (delta - Beta - Lf*psi_dot/V)
+Fyr = Cr*alpha_r = Cf (-Beta + Lf*psi_dot/V)
+
+State Space Representation
+Xlat = [y Beta psi psi_dot]
+Xlat+1 = Alat * Xlat + Blat*delta
+
+
+

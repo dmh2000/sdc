@@ -1,0 +1,90 @@
+Vehicle Acutation
+
+steering,throttle,braking
+connect to longitudinal and lateral models
+
+Inputs
+steering 
+    -> lateral dynamics 
+    -> lateral forces 
+    -> lateral kinematics 
+    -> yaw rate
+throttle/brake 
+    -> longitudinal dynamics 
+    -> longitudinal forces 
+    -> longitudinal kinematics 
+    -> forward velocity 
+
+lateral and longitudinal dynamics and kinematics are coupled
+
+control task : keep steering,throttle,brake to keep vehicle on
+    desired path and speed from motion planner
+
+Steering 
+--------
+turn command -> wheel angle -> lateral forces
+
+C = steering gear ratio
+steering angle = delta_s
+wheel angle = delta = C*delta_s
+
+Power Train 
+-----------
+
+Commands
+    Throttle
+    Brake 
+
+transmission   
+    gears 1 and 2 are 'torque mode'
+    higher gears are 'speed mode'
+
+throttle 
+    -> engine
+    -> torque converter
+    -> transmission
+    -> differential
+    -> brakes
+    -> wheels
+
+Acceleration
+------------ 
+throttle 
+    -> engine 
+    -> transmission 
+    -> wheel torque 
+
+accel model different 
+    gas engine 
+        peak torque in middle rpms
+        torque falls off at low and high rpms
+    diesel engine 
+        more consistent torqure over RPM range
+    electric
+        constant torque at low rpm
+        falls off at higher rpm (constant power) 
+    
+gas engine model
+    X_theta = throttle position %
+    omega_e = engine angular rate (rpm)
+    A0,A1,A2 are tuning parameters
+    Temax(omega_e) = A0 + A1omega_e + A2omega_e^2
+    Te(omegaE,X_theta) = X_theta  * (a0 + A1omega_e + A2omega_e^2)
+
+
+Braking 
+-------
+
+brake pressure -> disk force -> wheel torque
+delta_P = brake pressure
+Tbrake = k * delta_P
+
+brake functionality
+    shorten stopping distance
+    steerability during braking wit ABS
+    stability during braking to avoid overturning
+
+
+
+
+
