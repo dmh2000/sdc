@@ -1,0 +1,82 @@
+PID CONTROLL
+------------
+
+LTI - linear time invariant control 
+
+plant or process model
+    system represention
+        linear or nonlinear
+        plan : state space and transfer function
+        LTI system can be expressed using transfer functions 
+
+Transfer Function 
+    G is a relation between input U and output Y
+    Y(s) = G(s)U(s) = (N(s)/D(s)) * U(s)  (complex variable)
+    s = sigma + j*omega
+    transfer function go from time domain to s domain 
+        easier analysis and performance
+    Zeros : roots of N  
+    Poles : roots of D
+
+Control Algorithm Design
+    simple  
+        lead-lag
+        PID
+    complex
+        feedback linearization
+        backstepping
+        sliding model
+    optimization
+        model predictive control
+
+PID control
+    u(t) = Kpe(t) + Ki(integral of error) + Kd(derivative of error)
+    Kp,Ki,Kd are gains
+
+Lapace Domain
+    U(s) = Gc(s)E(s) = (kp + Ki/s + Kd*s) * E(s)
+         = ((Kd*s^2 + Kp*s + Ki) * E(s)
+           --------------------
+                  S
+
+    Gc(s)= ((Kd*s^2 + Kp*s + Ki)
+           --------------------
+                  S
+    PID has single pole at the origin (s, integral term)
+    two zeros placed anywhere
+    tuning is moving the zeros
+    Zeigler-Nichols for tuning
+
+Closed Loop Respone for step input
+    step input-> rise time   = time to 90% of reference value
+                 overshoot   = max % exceeding reference
+                 settle time = time to settle to 5% of reference
+                 steady state = error between output and reference
+
+Second Order Spring-Mass system
+
+dynamics -> m*x_dot_dot + b*x_dot + k*x = F x(0) = 0
+    m = Mass
+    b = damping coefficient
+    k = spring constant 
+
+Laplace Transform
+M*s^2*X(s) + b*s*X(s) + k*X(s) = F(s)
+
+Plant Transfer Function
+G(s) = X(S)/F(S) = 1/(m*s^2 + b*s + k)
+
+Open Loop Step Response
+-----------------------
+m = 1, b=10,k=20,F=1
+
+Closed Loop Transfer Function
+-----------------------------
+G(s) = plant process
+Gc(s) = controller
+H(s) = sensor/estimators
+
+Y(s)/R(s) = G(s)*Gc(s)
+            ----------
+            1 + G(s)Gc(s)
+

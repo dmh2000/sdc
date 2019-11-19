@@ -1,0 +1,41 @@
+Longitudinal Speed Control
+--------------------------
+
+define planning and Control
+design PID
+
+Vehicle control architecture
+----------------------------
+              [     drive cycle/path planning ]
+    -> Perception : sensors 
+            position, velocity
+    -> Planning   : [speed profile + path generation]   
+            reference velocity and position in x/y
+    -> Control    : [longitudinal control > longitudinal velocity < lateral control] 
+            throttle, brake,steering
+    -> Acuation   : [throttle/brake, steering] : actuaton
+
+Cruise Control
+--------------
+fixed reference using throttle commands
+
+ref velocity -> sum -> high level -> acceleration -> low level controller -> throttle/brake -> actuaors -> velocity
+                  ^                                                                                          v 
+                  +------------------------------------------------------------------------------------------+
+
+high level controller 
+    input  : ref velocity
+    output : X_dot_dot_cmd <= Kp(X_dot_ref - x_dot) + Ki(X_dot  + (x_dot_ref - x_dot)*dt)  + Kd(x_dot_ref - x_dot)/dt
+low level controller (non-linear)
+    input  : x_dot_dot_cmd
+    output :  throttle/brake (cmd -> torque -> throttle)
+    Tengine = (Je / (reff*GR)) * x_dot_dot_cmd + Tload
+    uses engine maps
+
+assume:
+    throttle only
+    torque converter locked (gear 3+)
+    tire slip nmd ratio is small
+
+
+
