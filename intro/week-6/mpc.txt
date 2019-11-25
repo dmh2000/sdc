@@ -1,0 +1,55 @@
+Model-Predictive Controller
+---------------------------
+
+numerically solve optimization at each time step
+receding horizon control - actuator signal based on fixed horizon 
+
+advantages
+    straightfoward : objective function and constraints
+    explicitly handles constraints
+    works for linear or nonlinear
+
+disadvantages
+    computationally expensive
+
+Receding horizon
+    current time to end of time horizon 
+        objects, constraints
+    state may change during computation
+        set initial state to predicted state
+    
+    pick horizon length
+    T = receding horizon length and time step t
+    x(t) = predicted state x
+        set initial state to predicted state
+        perform optimization over fine horizon t to T 
+        while traveling from X(t-1) to X(t)
+        apply first ccontrol command Up from optimization at time time
+
+                                    cost/constraints          past inputs/states
+                                           v                           V
+    ref trajectory (+) fugure error -> Optimizer -> current input -> Model => predicted outputs/states
+                    ^--------------------------------------------------------------------v
+                    
+
+Linear Time Invariant Model
+    Xt+1 = Axt + But
+    seek to find control policy U
+    closed form solution : linear quadratic regulator LQR
+
+Nonlinear MPC forumlation
+    constraints introduce nonlinearity
+    numerical optimization, no closed form
+
+lane change manuever
+    cost function - minimize
+        deviation trajectors
+        minimize control commands
+    constraints
+        lateran and longitudinal dynamic models
+        tire force limits
+    low level controller 
+        engine map
+        dynamic models
+        actuator models
+        tire force models

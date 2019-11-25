@@ -1,0 +1,64 @@
+Pure Pursuit - Geometric
+------------------------
+
+any controller that tracks a reference path
+using geometry and kinematics
+
+lateral controller that ignores lateral forces
+
+relies on kinematic model
+
+downside : performance suffers for agressive maneuvers
+
+works well in linear tire region
+
+uses reference point on path to measure error 
+    Lookahead point
+
+controller:
+    reference point is placed on path  at fixed distance
+    steer to intercept ; constant angle
+    point moves forward
+    steering angle reduces
+    Ld = lookahead line = center of rear axie to target point
+    alpha = angle between heading and Ld
+    instanenous center of rotation 
+        triangle
+            rear axle to Ld
+            R 
+            R 
+            angle between RR is 2 alpha
+
+    Ld / sin * salpha = R / sin(pi/2-alpha)
+    Ld / (s sin alpha cos alpha) = R /cos alpha
+    Ld / sin alpha = 2R
+    Kappa = 1 / R = 2 sin alpha / Ld
+
+    example
+    Ld = 4m
+    
+
+steering angle 
+    K = 2 sin alpha / Ld
+    delta = arctan KL
+    delta = arctan (2L sin alpha / Ld)    
+
+Crosstrack error (E)
+    lateral distance between heading vector and target point 
+    sin alpha = E / Ld
+    K = 2 sin alpha / Ld = (2 / Ld^2) * e
+    similar to proportional controller
+    Proportaional gain 2 / Ld^2 tuned for different speeds
+    adjust Ld based on speed : linear
+        Ld = KppVf
+        delta = arctan(2L sin alpha / Ld) 
+        Kappa = (2/Ld^2) * error
+        delta = arctan( (2L sin alpha) / (Kdd * Vf))
+        lookahead is further ahead based on speed
+
+        
+
+
+
+
+

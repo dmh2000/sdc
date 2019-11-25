@@ -1,0 +1,63 @@
+Stanley Lateral Control
+-----------------------
+
+Geometric Controller
+Stanford DARPA grand challenget
+
+use front axle as a reference point
+    global convergence
+    predictable decay
+
+steering law
+    correct heading error
+    correct cross track error
+    steering limits
+    no lookahead but directly at reference point
+
+e = relative to front axle
+delta = sterring agnle
+psi = heading error
+Vf = front wheel velocity
+
+1. steer to align heading with desired heading  delta = psi
+2. steer to eliminate cross track error 
+    proportional to error 
+    inversely proportional to speed
+    limit effect of large errors with arctan
+    gain k determined experimentally
+        delta = arctan(K*e/Vf)
+3. delta with min/max
+
+control law : 
+    delta = psi + arctan(Ke/Vf), delta = [min,max]
+    large heading errors, steer in opposite direction to get within bounds
+        psi becomes large
+    large crosstrack, steer toward reference point scaled by speed
+        arctan(K*e/Vf) becomes large ~ pi/2
+
+    as heading changes due to steering agnle
+    heading correction counteracts crosstrack correction, and drives
+    the angle back to zero
+    
+crosstrack error dynamics when not a max angle:
+    e_dot = -Vf * sin(psi) - delta = -Vf sin(arctan(ke/vf))
+          = -K*e / sqrt(1 + (K*d)/Vf)^2)
+    for small crosstrack error leads to exponential decay   e_dot ~ -k * e
+
+
+low speed adjustments
+    inverse speed numerical instability
+        Vf in denominator nears zero causes blow up
+    add softening constant to
+    delta = psi + atan(Ke / (Ks + Vf))
+higher speeds - stanley is over agressive
+    extra damping on heading
+    PD Controller
+constant radius curve
+    add feedforward
+
+stanley works in linear tire region
+
+
+
+

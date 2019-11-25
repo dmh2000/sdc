@@ -1,0 +1,68 @@
+Lateral Control Intro
+----------------------
+
+lateral control - precisely follow a path with steering angle
+    error relative to path
+    control design drives errors to zero within angle limits
+    dyanamic considerations for forces and moments
+
+reference path
+    straight line segments
+        depends on environment
+        discontinuities at changes
+    waypoints 
+        divide path into waypoints
+    parameterized curves
+        fixed set 
+        optimized during planning
+        continous, smooth derivatives 
+    Goals
+        heading path alignment
+        eliminate offset to path
+
+point ordering
+curve ordering
+
+Geometric controllers - geometry and kinematics
+    pure pursuit
+    stanley
+
+Dynamic Controllers -
+    model-predictive-controller - MPC
+    optimized solutions
+    others
+        sliding model
+        feedback linearization
+
+Plan Model - bicycle
+    states and inputs defined relative to center of front axle
+    solid line is reference path
+    dotted line parallel thru front axle
+    heading = relative to current path line segment
+    v = front wheel speed
+    d = steering relative to heading
+    psi = heading relative to trajectory
+    front axle, cg, rear axle
+
+    heading errors
+        front axle : psi_dot_desired (0) - psi_dot = Vf * sin delta / L (wheelbase)
+                    desired is 0 for straight line segments
+                    psi_dot = -Vf *sin(delta) / L
+    crosstrack error : e
+        distance front axle to closet point on path
+        rate of change = lateral component of velocity
+        e_dot = Vf * sin(psi - delta)
+        curved path - harder to determine reference point
+
+reference path  
+    line segments   
+    waypoints
+    curves
+errors
+    heading
+    crosstrack
+
+    
+
+
+
