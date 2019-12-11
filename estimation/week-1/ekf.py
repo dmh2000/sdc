@@ -75,7 +75,11 @@ print('K', K)
 
 # correct the prediction
 x_hat = x_hat + K @ (y - h(x_hat[0], v))
+
 print('x', x_hat)
 
+i = np.identity(2)
 P_hat = P_chk - K @ H @ P_chk
+print('P_hat', P_hat)
+P_hat = (i - K @ H) @ P_chk
 print('P_hat', P_hat)
