@@ -23,7 +23,7 @@ l = data['l']  # x,y positions of landmarks [m]
 d = data['d']  # distance between robot center and laser rangefinder [m]
 
 v_var = 0.01  # translation velocity variance
-om_var = 0.01  # 0.01  # rotational velocity variance
+om_var = 5  # 0.01  # rotational velocity variance
 r_var = 0.01  # range measurements variance
 b_var = 0.01  # bearing measurement variance
 
@@ -52,8 +52,8 @@ def wraptopi(x):
 # motion model
 def f(x, v, omega):
     # noise term
-    w = np.random.normal(loc=0, scale=Q_km)
-    w_k = np.array([w[0, 0], w[1, 1]])
+    w = np.random.normal(loc=0, scale=0.1, size=2)
+    w_k = np.array([w[0], w[1]])
 
     # update term
     theta = x[2]
@@ -66,7 +66,7 @@ def f(x, v, omega):
     # input term
     b = np.array([
         v, omega
-    ]) + w_k
+    ])
 
     # scale with noise
     c = a @ b
@@ -120,15 +120,16 @@ def measurement_update(lk, rk, bk, P_check, x_check):
              theta)) / np.sqrt((-d * np.sin(theta) - yk + yl) ** 2 + (-d * np.cos(theta) - xk + xl) ** 2)
          ],
         [-(d * np.sin(theta) + yk - yl) / ((-d * np.sin(theta) - yk + yl) ** 2 + (-d * np.cos(theta) - xk + xl) ** 2),
-         -(-d * np.cos(theta) - xk + xl) / ((-d * np.sin(theta) - yk + yl) ** 2 + (-d * np.cos(theta) - xk + xl) ** 2),
+         -(-d * np.cos(theta) - xk + xl) / ((-d * np.sin(theta) - yk + yl)
+                                            ** 2 + (-d * np.cos(theta) - xk + xl) ** 2),
          d * (d * np.sin(theta) + yk - yl) * np.sin(theta) / (
-                     (-d * np.sin(theta) - yk + yl) ** 2 + (-d * np.cos(theta) - xk + xl) ** 2) - d * (
-                     -d * np.cos(theta) - xk + xl) * np.cos(theta) / (
-                     (-d * np.sin(theta) - yk + yl) ** 2 + (-d * np.cos(theta) - xk + xl) ** 2) - 1
+            (-d * np.sin(theta) - yk + yl) ** 2 + (-d * np.cos(theta) - xk + xl) ** 2) - d * (
+            -d * np.cos(theta) - xk + xl) * np.cos(theta) / (
+            (-d * np.sin(theta) - yk + yl) ** 2 + (-d * np.cos(theta) - xk + xl) ** 2) - 1
          ]
     ])
 
-    np.array([
+    H = np.array([
         [(xk - xl) / np.sqrt((-xk + xl) ** 2 + (-yk + yl) ** 2),
          (yk - yl) / np.sqrt((-xk + xl) ** 2 + (-yk + yl) ** 2),
          0],
@@ -149,7 +150,10 @@ def measurement_update(lk, rk, bk, P_check, x_check):
 
     y_check = h(x_check, lk, np.array([0, 0]))
 
-    x_hat = x_check + K @ (y_l - y_check)
+    x_check = x_check + K @ (y_l - y_check)
+
+    # need to wrap here
+    x_check[2] = wraptopi(x_check[2])
 
     # 4. Correct covariance
     P_check = (np.identity(3) - K @ H) @ P_check
@@ -170,19 +174,24 @@ for k in range(1, len(t)):  # start at 1 because we've set the initial predicito
     # 2. Motion model jacobian with respect to last state
     theta_k = x_check[2]
 
-    F_km = np.array([[1, 0, -delta_t * v[k] * np.sin(theta_k)],
-                     [0, 1, delta_t * v[k] * np.cos(theta_k)],
+    F_km = np.array([[1, 0, -delta_t * v[k-1] * np.sin(theta_k)],
+                     [0, 1, delta_t * v[k-1] * np.cos(theta_k)],
                      [0, 0, 1]])
 
     # 3. Motion model jacobian with respect to noise
-    L_km = np.zeros((3, 2))
+    L_km = np.array([
+        [delta_t*np.cos(theta_k), 0],
+        [delta_t*np.sin(theta_k), 0],
+        [0, delta_t]
+    ])
 
     # 4. Propagate uncertainty
     P_check = F_km @ P_check @ F_km.T + L_km @ Q_km @ L_km.T
 
     # 5. Update state estimate using available landmark measurements
     for i in range(len(r[k])):
-        x_check, P_check = measurement_update(l[i], r[k, i], b[k, i], P_check, x_check)
+        x_check, P_check = measurement_update(
+            l[i], r[k, i], b[k, i], P_check, x_check)
 
     # Set final state predictions for timestep
     x_est[k, 0] = x_check[0]
@@ -199,11 +208,11 @@ ax.set_ylabel('y [m]')
 ax.set_title('Estimated trajectory')
 plt.show()
 
-# e_fig = plt.figure()
-# ax = e_fig.add_subplot(111)
-# ax.grid()
-# ax.plot(t[:], x_est[:, 2])
-# ax.set_xlabel('Time [s]')
-# ax.set_ylabel('theta [rad]')
-# ax.set_title('Estimated trajectory')
-# plt.show()
+e_fig = plt.figure()
+ax = e_fig.add_subplot(111)
+ax.grid()
+ax.plot(t[:], x_est[:, 2])
+ax.set_xlabel('Time [s]')
+ax.set_ylabel('theta [rad]')
+ax.set_title('Estimated trajectory')
+plt.show()

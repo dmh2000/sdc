@@ -22,3 +22,6 @@ lower variance measurements have higher weights
 if LWs as above has equal sigmas (variance/standard deviation) then it reduces to ordinary least squares
 
 Method: weighted average of masurements
+
+https://textbooks.math.gatech.edu/ila/least-squares.html
+https://en.wikipedia.org/wiki/Least_squares

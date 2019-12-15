@@ -47,6 +47,8 @@ Measuring a resistor
   - v - measurement noise
   - y - actual value
   - x_hat = esimate
+  - residual : difference between y (actual value) - estimated value(x_hat)
+  -
 - Squared Error
   - e = (y - x)\*\*2
 - argmin of sum of errors - Loss Function
