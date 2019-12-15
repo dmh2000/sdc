@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
 
-#### 1. Data ###################################################################################
+# 1. Data ###################################################################################
 
 ################################################################################################
 # This is where you will load the data from the pickle files. For parts 1 and 2, you will use
@@ -53,7 +53,7 @@ lidar = data['lidar']
 ################################################################################################
 gt_fig = plt.figure()
 ax = gt_fig.add_subplot(111, projection='3d')
-ax.plot(gt.p[:,0], gt.p[:,1], gt.p[:,2])
+ax.plot(gt.p[:, 0], gt.p[:, 1], gt.p[:, 2])
 ax.set_xlabel('x [m]')
 ax.set_ylabel('y [m]')
 ax.set_zlabel('z [m]')
@@ -72,9 +72,9 @@ plt.show()
 ################################################################################################
 # Correct calibration rotation matrix, corresponding to Euler RPY angles (0.05, 0.05, 0.1).
 C_li = np.array([
-   [ 0.99376, -0.09722,  0.05466],
-   [ 0.09971,  0.99401, -0.04475],
-   [-0.04998,  0.04992,  0.9975 ]
+    [0.99376, -0.09722, 0.05466],
+    [0.09971, 0.99401, -0.04475],
+    [-0.04998, 0.04992, 0.9975]
 ])
 
 # Incorrect calibration rotation matrix, corresponding to Euler RPY angles (0.05, 0.05, 0.05).
@@ -89,7 +89,7 @@ t_i_li = np.array([0.5, 0.1, 0.5])
 # Transform from the LIDAR frame to the vehicle (IMU) frame.
 lidar.data = (C_li @ lidar.data.T).T + t_i_li
 
-#### 2. Constants ##############################################################################
+# 2. Constants ##############################################################################
 
 ################################################################################################
 # Now that our data is set up, we can start getting things ready for our solver. One of the
@@ -98,7 +98,7 @@ lidar.data = (C_li @ lidar.data.T).T + t_i_li
 ################################################################################################
 var_imu_f = 0.10
 var_imu_w = 0.25
-var_gnss  = 0.01
+var_gnss = 0.01
 var_lidar = 1.00
 
 ################################################################################################
@@ -110,7 +110,7 @@ l_jac[3:, :] = np.eye(6)  # motion model noise jacobian
 h_jac = np.zeros([3, 9])
 h_jac[:, :3] = np.eye(3)  # measurement model jacobian
 
-#### 3. Initial Values #########################################################################
+# 3. Initial Values #########################################################################
 
 ################################################################################################
 # Let's set up some initial values for our ES-EKF solver.
@@ -125,10 +125,11 @@ p_est[0] = gt.p[0]
 v_est[0] = gt.v[0]
 q_est[0] = Quaternion(euler=gt.r[0]).to_numpy()
 p_cov[0] = np.zeros(9)  # covariance of estimate
-gnss_i  = 0
+gnss_i = 0
 lidar_i = 0
 
-#### 4. Measurement Update #####################################################################
+
+# 4. Measurement Update #####################################################################
 
 ################################################################################################
 # Since we'll need a measurement update for both the GNSS and the LIDAR data, let's make
@@ -145,7 +146,8 @@ def measurement_update(sensor_var, p_cov_check, y_k, p_check, v_check, q_check):
 
     return p_hat, v_hat, q_hat, p_cov_hat
 
-#### 5. Main Filter Loop #######################################################################
+
+# 5. Main Filter Loop #######################################################################
 
 ################################################################################################
 # Now that everything is set up, we can start taking in the sensor data and creating estimates
@@ -164,7 +166,7 @@ for k in range(1, imu_f.data.shape[0]):  # start at 1 b/c we have initial predic
 
     # Update states (save)
 
-#### 6. Results and Analysis ###################################################################
+# 6. Results and Analysis ###################################################################
 
 ################################################################################################
 # Now that we have state estimates for all of our sensor data, let's plot the results. This plot
@@ -174,8 +176,8 @@ for k in range(1, imu_f.data.shape[0]):  # start at 1 b/c we have initial predic
 ################################################################################################
 est_traj_fig = plt.figure()
 ax = est_traj_fig.add_subplot(111, projection='3d')
-ax.plot(p_est[:,0], p_est[:,1], p_est[:,2], label='Estimated')
-ax.plot(gt.p[:,0], gt.p[:,1], gt.p[:,2], label='Ground Truth')
+ax.plot(p_est[:, 0], p_est[:, 1], p_est[:, 2], label='Estimated')
+ax.plot(gt.p[:, 0], gt.p[:, 1], gt.p[:, 2], label='Ground Truth')
 ax.set_xlabel('Easting [m]')
 ax.set_ylabel('Northing [m]')
 ax.set_zlabel('Up [m]')
@@ -186,7 +188,7 @@ ax.set_zlim(-2, 2)
 ax.set_xticks([0, 50, 100, 150, 200])
 ax.set_yticks([0, 50, 100, 150, 200])
 ax.set_zticks([-2, -1, 0, 1, 2])
-ax.legend(loc=(0.62,0.77))
+ax.legend(loc=(0.62, 0.77))
 ax.view_init(elev=45, azim=-50)
 plt.show()
 
@@ -219,21 +221,21 @@ p_cov_std = np.sqrt(np.diagonal(p_cov[:, :6, :6], axis1=1, axis2=2))
 titles = ['Easting', 'Northing', 'Up', 'Roll', 'Pitch', 'Yaw']
 for i in range(3):
     ax[0, i].plot(range(num_gt), gt.p[:, i] - p_est[:num_gt, i])
-    ax[0, i].plot(range(num_gt),  3 * p_cov_std[:num_gt, i], 'r--')
+    ax[0, i].plot(range(num_gt), 3 * p_cov_std[:num_gt, i], 'r--')
     ax[0, i].plot(range(num_gt), -3 * p_cov_std[:num_gt, i], 'r--')
     ax[0, i].set_title(titles[i])
-ax[0,0].set_ylabel('Meters')
+ax[0, 0].set_ylabel('Meters')
 
 for i in range(3):
-    ax[1, i].plot(range(num_gt), \
-        angle_normalize(gt.r[:, i] - p_est_euler[:num_gt, i]))
-    ax[1, i].plot(range(num_gt),  3 * p_cov_euler_std[:num_gt, i], 'r--')
+    ax[1, i].plot(range(num_gt),
+                  angle_normalize(gt.r[:, i] - p_est_euler[:num_gt, i]))
+    ax[1, i].plot(range(num_gt), 3 * p_cov_euler_std[:num_gt, i], 'r--')
     ax[1, i].plot(range(num_gt), -3 * p_cov_euler_std[:num_gt, i], 'r--')
-    ax[1, i].set_title(titles[i+3])
-ax[1,0].set_ylabel('Radians')
+    ax[1, i].set_title(titles[i + 3])
+ax[1, 0].set_ylabel('Radians')
 plt.show()
 
-#### 7. Submission #############################################################################
+# 7. Submission #############################################################################
 
 ################################################################################################
 # Now we can prepare your results for submission to the Coursera platform. Uncomment the
