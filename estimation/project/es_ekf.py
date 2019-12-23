@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, Quaternion
 
-# 1. Data ###################################################################################
+#### 1. Data ###################################################################################
 
 ################################################################################################
 # This is where you will load the data from the pickle files. For parts 1 and 2, you will use
@@ -53,7 +53,7 @@ lidar = data['lidar']
 ################################################################################################
 gt_fig = plt.figure()
 ax = gt_fig.add_subplot(111, projection='3d')
-ax.plot(gt.p[:, 0], gt.p[:, 1], gt.p[:, 2])
+ax.plot(gt.p[:,0], gt.p[:,1], gt.p[:,2])
 ax.set_xlabel('x [m]')
 ax.set_ylabel('y [m]')
 ax.set_zlabel('z [m]')
@@ -65,16 +65,16 @@ plt.show()
 # Remember that our LIDAR data is actually just a set of positions estimated from a separate
 # scan-matching system, so we can insert it into our solver as another position measurement,
 # just as we do for GNSS. However, the LIDAR frame is not the same as the frame shared by the
-# IMU and the GNSS. To remedy this, we transform the LIDAR data to the IMU frame using our 
+# IMU and the GNSS. To remedy this, we transform the LIDAR data to the IMU frame using our
 # known extrinsic calibration rotation matrix C_li and translation vector t_i_li.
 #
 # THIS IS THE CODE YOU WILL MODIFY FOR PART 2 OF THE ASSIGNMENT.
 ################################################################################################
 # Correct calibration rotation matrix, corresponding to Euler RPY angles (0.05, 0.05, 0.1).
 C_li = np.array([
-    [0.99376, -0.09722, 0.05466],
-    [0.09971, 0.99401, -0.04475],
-    [-0.04998, 0.04992, 0.9975]
+   [ 0.99376, -0.09722,  0.05466],
+   [ 0.09971,  0.99401, -0.04475],
+   [-0.04998,  0.04992,  0.9975 ]
 ])
 
 # Incorrect calibration rotation matrix, corresponding to Euler RPY angles (0.05, 0.05, 0.05).
@@ -89,7 +89,7 @@ t_i_li = np.array([0.5, 0.1, 0.5])
 # Transform from the LIDAR frame to the vehicle (IMU) frame.
 lidar.data = (C_li @ lidar.data.T).T + t_i_li
 
-# 2. Constants ##############################################################################
+#### 2. Constants ##############################################################################
 
 ################################################################################################
 # Now that our data is set up, we can start getting things ready for our solver. One of the
@@ -98,7 +98,7 @@ lidar.data = (C_li @ lidar.data.T).T + t_i_li
 ################################################################################################
 var_imu_f = 0.10
 var_imu_w = 0.25
-var_gnss = 0.01
+var_gnss  = 0.01
 var_lidar = 1.00
 
 ################################################################################################
@@ -110,7 +110,7 @@ l_jac[3:, :] = np.eye(6)  # motion model noise jacobian
 h_jac = np.zeros([3, 9])
 h_jac[:, :3] = np.eye(3)  # measurement model jacobian
 
-# 3. Initial Values #########################################################################
+#### 3. Initial Values #########################################################################
 
 ################################################################################################
 # Let's set up some initial values for our ES-EKF solver.
@@ -125,9 +125,8 @@ p_est[0] = gt.p[0]
 v_est[0] = gt.v[0]
 q_est[0] = Quaternion(euler=gt.r[0]).to_numpy()
 p_cov[0] = np.zeros(9)  # covariance of estimate
-gnss_i = 0
+gnss_i  = 0
 lidar_i = 0
-
 
 # 4. Measurement Update #####################################################################
 
@@ -135,36 +134,127 @@ lidar_i = 0
 # Since we'll need a measurement update for both the GNSS and the LIDAR data, let's make
 # a function for it.
 ################################################################################################
+
+
 def measurement_update(sensor_var, p_cov_check, y_k, p_check, v_check, q_check):
+    H = h_jac
+    R = np.identity(3) * sensor_var
+
     # 3.1 Compute Kalman Gain
+    K = p_cov_check @ H.T @ np.linalg.inv(H @ p_cov_check @ H.T + R)
 
     # 3.2 Compute error state
+    # sensor position - predicted position
+    dX = K @ (y_k - p_check)
 
     # 3.3 Correct predicted state
+    p_hat = p_check + dX[0:3]
+    v_hat = v_check + dX[3:6]
+    q_hat = Quaternion(euler=dX[6:9]).quat_mult_left(q_check)
 
     # 3.4 Compute corrected covariance
+    p_cov_hat = (np.identity(9) - K @ H) @ p_cov_check
 
     return p_hat, v_hat, q_hat, p_cov_hat
 
 
+# ======================================================
+# motion model
+# ======================================================
+
+# imu update
+def f_imu(p, v, q, fi, wi, dt):
+    # create rotation matrix from previous 'q'
+    Cns = Quaternion(*q).to_mat()
+
+    cf = ((Cns @ fi) + g)
+
+    # update position
+    p = p + dt * v + (dt ** 2 / 2.0) * cf
+
+    # update velocity
+    v = v + dt * cf
+
+    # update orientation
+    q = Quaternion(axis_angle=(wi * dt)).quat_mult_right(Quaternion(*q))
+
+    return p, v, q
+
+
 # 5. Main Filter Loop #######################################################################
+
 
 ################################################################################################
 # Now that everything is set up, we can start taking in the sensor data and creating estimates
 # for our state in a loop.
 ################################################################################################
-for k in range(1, imu_f.data.shape[0]):  # start at 1 b/c we have initial prediction from gt
+
+# start at 1 b/c we have initial prediction from gt
+for k in range(1, imu_f.data.shape[0]):
     delta_t = imu_f.t[k] - imu_f.t[k - 1]
 
     # 1. Update state with IMU inputs
+    p_check, v_check, q_check = f_imu(p_est[k - 1],
+                                      v_est[k - 1],
+                                      q_est[k - 1],
+                                      imu_f.data[k - 1],
+                                      imu_w.data[k - 1],
+                                      delta_t)
 
     # 1.1 Linearize the motion model and compute Jacobians
+    Cns = Quaternion(*q_check).to_mat()
+    X = (Cns @ skew_symmetric(imu_f.data[k].reshape((3,1)))) * delta_t
+    I = np.identity(3)
+    F = np.zeros((9, 9))
+    F[0:3, 0:3] = I
+    F[0:3, 3:6] = I * delta_t
+    F[3:6, 3:6] = I
+    F[3:6, 6:9] = X
+    F[6:9, 6:9] = I
 
     # 2. Propagate uncertainty
+    Q = np.zeros((6, 6))
+    af = I * var_imu_f
+    Q[0:3, 0:3] = af
+    gf = I * var_imu_w
+    Q[3:6, 3:6] = gf
+    Q = Q * delta_t ** 2
+    p_cov_check = F @ p_cov[k - 1] @ F.T + l_jac @ Q @ l_jac.T
+
+    # update if no gnss or lidar measurement
+    p_hat = p_check
+    v_hat = v_check
+    q_hat = q_check
+    p_cov_hat = p_cov_check
 
     # 3. Check availability of GNSS and LIDAR measurements
+    if (gnss_i < len(gnss.t)) and (gnss.t[gnss_i] <= imu_f.t[k]):
+        # got a gnss update
+        p_hat, v_hat, q_hat, p_cov_hat = measurement_update(var_gnss,
+                                                            p_cov_check,
+                                                            gnss.data[gnss_i],
+                                                            p_check,
+                                                            v_check,
+                                                            q_check)
+        # look for next gnss update
+        gnss_i += 1
+
+    if (lidar_i < len(lidar.t)) and (lidar.t[lidar_i] <= imu_f.t[k]):
+        # got a lidar update
+        p_hat, v_hat, q_hat, p_cov_hat = measurement_update(var_lidar,
+                                                            p_cov_check,
+                                                            lidar.data[lidar_i],
+                                                            p_check,
+                                                            v_check,
+                                                            q_check)
+        # look for next lidar update
+        lidar_i += 1
 
     # Update states (save)
+    p_est[k] = p_hat
+    v_est[k] = v_hat
+    q_est[k] = q_hat
+    p_cov[k] = p_cov_hat
 
 # 6. Results and Analysis ###################################################################
 
@@ -184,7 +274,7 @@ ax.set_zlabel('Up [m]')
 ax.set_title('Ground Truth and Estimated Trajectory')
 ax.set_xlim(0, 200)
 ax.set_ylim(0, 200)
-ax.set_zlim(-2, 2)
+ax.set_zlim(-20, 20)
 ax.set_xticks([0, 50, 100, 150, 200])
 ax.set_yticks([0, 50, 100, 150, 200])
 ax.set_zticks([-2, -1, 0, 1, 2])
