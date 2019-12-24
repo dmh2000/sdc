@@ -151,7 +151,7 @@ def measurement_update(sensor_var, p_cov_check, y_k, p_check, v_check, q_check):
     # 3.3 Correct predicted state
     p_hat = p_check + dX[0:3]
     v_hat = v_check + dX[3:6]
-    q_hat = Quaternion(axis_angle=dX[6:9]).quat_mult_left(q_check)
+    q_hat = Quaternion(euler=dX[6:9]).quat_mult_right(q_check)
 
     # 3.4 Compute corrected covariance
     p_cov_hat = (np.eye(9) - K @ H) @ p_cov_check
@@ -208,10 +208,20 @@ for k in range(1, imu_f.data.shape[0]):
     X = (Cns @ -skew_symmetric(imu_f.data[k - 1])) * delta_t
     I = np.identity(3)
     F = np.zeros((9, 9))
+
+    # first row
     F[0:3, 0:3] = I
     F[0:3, 3:6] = delta_t * I
+    # F[0:3, 6:9] = 0
+
+    # second row
+    # F[3:6], 0:3] = 0
     F[3:6, 3:6] = I
     F[3:6, 6:9] = X
+
+    # third row
+    # F[6:9, 0:3] = 0
+    # F[6:9, 3:6] = 0
     F[6:9, 6:9] = I
 
     # 2. Propagate uncertainty
@@ -221,6 +231,7 @@ for k in range(1, imu_f.data.shape[0]):
     Q[0:3, 0:3] = af
     Q[3:6, 3:6] = gf
     Q = Q * delta_t ** 2
+
     p_cov_check = F @ p_cov[k - 1] @ F.T + l_jac @ Q @ l_jac.T
 
     # update if no gnss or lidar measurement
@@ -258,10 +269,10 @@ for k in range(1, imu_f.data.shape[0]):
     q_est[k] = q_hat
     p_cov[k] = p_cov_hat
 
-    p_est[k] = p_check
-    v_est[k] = v_check
-    q_est[k] = q_check
-    p_cov[k] = p_cov_check
+    # p_est[k] = p_check
+    # v_est[k] = v_check
+    # q_est[k] = q_check
+    # p_cov[k] = p_cov_check
 # 6. Results and Analysis ###################################################################
 
 ################################################################################################
