@@ -53,7 +53,7 @@ lidar = data['lidar']
 ################################################################################################
 gt_fig = plt.figure()
 ax = gt_fig.add_subplot(111, projection='3d')
-ax.plot(gt.p[:,0], gt.p[:,1], gt.p[:,2])
+ax.plot(gt.p[:, 0], gt.p[:, 1], gt.p[:, 2])
 ax.set_xlabel('x [m]')
 ax.set_ylabel('y [m]')
 ax.set_zlabel('z [m]')
@@ -72,9 +72,9 @@ plt.show()
 ################################################################################################
 # Correct calibration rotation matrix, corresponding to Euler RPY angles (0.05, 0.05, 0.1).
 C_li = np.array([
-   [ 0.99376, -0.09722,  0.05466],
-   [ 0.09971,  0.99401, -0.04475],
-   [-0.04998,  0.04992,  0.9975 ]
+    [0.99376, -0.09722, 0.05466],
+    [0.09971, 0.99401, -0.04475],
+    [-0.04998, 0.04992, 0.9975]
 ])
 
 # Incorrect calibration rotation matrix, corresponding to Euler RPY angles (0.05, 0.05, 0.05).
@@ -98,7 +98,7 @@ lidar.data = (C_li @ lidar.data.T).T + t_i_li
 ################################################################################################
 var_imu_f = 0.10
 var_imu_w = 0.25
-var_gnss  = 0.01
+var_gnss = 0.01
 var_lidar = 1.00
 
 ################################################################################################
@@ -125,8 +125,9 @@ p_est[0] = gt.p[0]
 v_est[0] = gt.v[0]
 q_est[0] = Quaternion(euler=gt.r[0]).to_numpy()
 p_cov[0] = np.zeros(9)  # covariance of estimate
-gnss_i  = 0
+gnss_i = 0
 lidar_i = 0
+
 
 # 4. Measurement Update #####################################################################
 
@@ -150,10 +151,10 @@ def measurement_update(sensor_var, p_cov_check, y_k, p_check, v_check, q_check):
     # 3.3 Correct predicted state
     p_hat = p_check + dX[0:3]
     v_hat = v_check + dX[3:6]
-    q_hat = Quaternion(euler=dX[6:9]).quat_mult_left(q_check)
+    q_hat = Quaternion(axis_angle=dX[6:9]).quat_mult_left(q_check)
 
     # 3.4 Compute corrected covariance
-    p_cov_hat = (np.identity(9) - K @ H) @ p_cov_check
+    p_cov_hat = (np.eye(9) - K @ H) @ p_cov_check
 
     return p_hat, v_hat, q_hat, p_cov_hat
 
@@ -167,7 +168,7 @@ def f_imu(p, v, q, fi, wi, dt):
     # create rotation matrix from previous 'q'
     Cns = Quaternion(*q).to_mat()
 
-    cf = ((Cns @ fi) + g)
+    cf = (Cns @ fi) + g
 
     # update position
     p = p + dt * v + (dt ** 2 / 2.0) * cf
@@ -176,7 +177,8 @@ def f_imu(p, v, q, fi, wi, dt):
     v = v + dt * cf
 
     # update orientation
-    q = Quaternion(axis_angle=(wi * dt)).quat_mult_right(Quaternion(*q))
+    # q = Quaternion(axis_angle=(wi * dt)).quat_mult_right(q)
+    q = Quaternion(*q).quat_mult_left(Quaternion(euler=(wi * dt)))
 
     return p, v, q
 
@@ -202,21 +204,21 @@ for k in range(1, imu_f.data.shape[0]):
                                       delta_t)
 
     # 1.1 Linearize the motion model and compute Jacobians
-    Cns = Quaternion(*q_check).to_mat()
-    X = (Cns @ skew_symmetric(imu_f.data[k].reshape((3,1)))) * delta_t
+    Cns = Quaternion(*q_est[k - 1]).to_mat()
+    X = (Cns @ -skew_symmetric(imu_f.data[k - 1])) * delta_t
     I = np.identity(3)
     F = np.zeros((9, 9))
     F[0:3, 0:3] = I
-    F[0:3, 3:6] = I * delta_t
+    F[0:3, 3:6] = delta_t * I
     F[3:6, 3:6] = I
     F[3:6, 6:9] = X
     F[6:9, 6:9] = I
 
     # 2. Propagate uncertainty
-    Q = np.zeros((6, 6))
+    Q = np.eye(6)
     af = I * var_imu_f
-    Q[0:3, 0:3] = af
     gf = I * var_imu_w
+    Q[0:3, 0:3] = af
     Q[3:6, 3:6] = gf
     Q = Q * delta_t ** 2
     p_cov_check = F @ p_cov[k - 1] @ F.T + l_jac @ Q @ l_jac.T
@@ -256,6 +258,10 @@ for k in range(1, imu_f.data.shape[0]):
     q_est[k] = q_hat
     p_cov[k] = p_cov_hat
 
+    p_est[k] = p_check
+    v_est[k] = v_check
+    q_est[k] = q_check
+    p_cov[k] = p_cov_check
 # 6. Results and Analysis ###################################################################
 
 ################################################################################################
