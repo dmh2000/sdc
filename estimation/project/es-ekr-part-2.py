@@ -51,15 +51,15 @@ lidar = data['lidar']
 # Let's plot the ground truth trajectory to see what it looks like. When you're testing your
 # code later, feel free to comment this out.
 ################################################################################################
-gt_fig = plt.figure()
-ax = gt_fig.add_subplot(111, projection='3d')
-ax.plot(gt.p[:, 0], gt.p[:, 1], gt.p[:, 2])
-ax.set_xlabel('x [m]')
-ax.set_ylabel('y [m]')
-ax.set_zlabel('z [m]')
-ax.set_title('Ground Truth trajectory')
-ax.set_zlim(-1, 5)
-plt.show()
+# gt_fig = plt.figure()
+# ax = gt_fig.add_subplot(111, projection='3d')
+# ax.plot(gt.p[:, 0], gt.p[:, 1], gt.p[:, 2])
+# ax.set_xlabel('x [m]')
+# ax.set_ylabel('y [m]')
+# ax.set_zlabel('z [m]')
+# ax.set_title('Ground Truth trajectory')
+# ax.set_zlim(-1, 5)
+# plt.show()
 
 ################################################################################################
 # Remember that our LIDAR data is actually just a set of positions estimated from a separate
@@ -78,11 +78,11 @@ C_li = np.array([
 ])
 
 # Incorrect calibration rotation matrix, corresponding to Euler RPY angles (0.05, 0.05, 0.05).
-# C_li = np.array([
-#      [ 0.9975 , -0.04742,  0.05235],
-#      [ 0.04992,  0.99763, -0.04742],
-#      [-0.04998,  0.04992,  0.9975 ]
-# ])
+C_li = np.array([
+    [0.9975, -0.04742, 0.05235],
+    [0.04992, 0.99763, -0.04742],
+    [-0.04998, 0.04992, 0.9975]
+])
 
 t_i_li = np.array([0.5, 0.1, 0.5])
 
@@ -96,11 +96,20 @@ lidar.data = (C_li @ lidar.data.T).T + t_i_li
 # most important aspects of a filter is setting the estimated sensor variances correctly.
 # We set the values here.
 ################################################################################################
+# imu force
 var_imu_f = 0.10
-var_imu_w = 0.25
-var_gnss = 0.01
-var_lidar = 1.00
 
+# imu attitude
+var_imu_w = 0.25
+
+var_gnss = 0.01
+
+# lidar variance
+var_lidar = 1.00
+var_lidar = 75.0
+
+# import sys
+# var_lidar = float(sys.argv[1])
 ################################################################################################
 # We can also set up some constants that won't change for any iteration of our solver.
 ################################################################################################
@@ -274,6 +283,12 @@ for k in range(1, imu_f.data.shape[0]):
     p_cov[k] = p_cov_hat
 
 # 6. Results and Analysis ###################################################################
+# compute error
+xerror = np.linalg.norm(gt.p[:, 0] - p_est[:gt.p.shape[0], 0])
+yerror = np.linalg.norm(gt.p[:, 1] - p_est[:gt.p.shape[0], 1])
+zerror = np.linalg.norm(gt.p[:, 2] - p_est[:gt.p.shape[0], 2])
+print(var_lidar, xerror,yerror,zerror)
+
 
 ################################################################################################
 # Now that we have state estimates for all of our sensor data, let's plot the results. This plot
@@ -291,7 +306,7 @@ ax.set_zlabel('Up [m]')
 ax.set_title('Ground Truth and Estimated Trajectory')
 ax.set_xlim(0, 200)
 ax.set_ylim(0, 200)
-ax.set_zlim(-20, 20)
+ax.set_zlim(-2, 2)
 ax.set_xticks([0, 50, 100, 150, 200])
 ax.set_yticks([0, 50, 100, 150, 200])
 ax.set_zticks([-2, -1, 0, 1, 2])
@@ -324,6 +339,7 @@ p_cov_euler_std = np.array(p_cov_euler_std)
 
 # Get uncertainty estimates from P matrix
 p_cov_std = np.sqrt(np.diagonal(p_cov[:, :6, :6], axis1=1, axis2=2))
+
 
 titles = ['Easting', 'Northing', 'Up', 'Roll', 'Pitch', 'Yaw']
 for i in range(3):
@@ -360,13 +376,13 @@ with open('pt1_submission.txt', 'w') as file:
     file.write(p1_str)
 
 # Pt. 2 submission
-# p2_indices = [9000, 9400, 9800, 10200, 10600]
-# p2_str = ''
-# for val in p2_indices:
-#     for i in range(3):
-#         p2_str += '%.3f ' % (p_est[val, i])
-# with open('pt2_submission.txt', 'w') as file:
-#     file.write(p2_str)
+p2_indices = [9000, 9400, 9800, 10200, 10600]
+p2_str = ''
+for val in p2_indices:
+    for i in range(3):
+        p2_str += '%.3f ' % (p_est[val, i])
+with open('pt2_submission.txt', 'w') as file:
+    file.write(p2_str)
 
 # Pt. 3 submission
 # p3_indices = [6800, 7600, 8400, 9200, 10000]
